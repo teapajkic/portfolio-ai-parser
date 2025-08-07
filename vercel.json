@@ -1,31 +1,7 @@
 {
-  "version": 2,
-  "builds": [
-    {
-      "src": "api/*.js",
-      "use": "@vercel/node"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/scrape-portfolio",
-      "dest": "/api/scrape-portfolio"
-    },
-    {
-      "src": "/health",
-      "dest": "/api/health"
-    },
-    {
-      "src": "/",
-      "dest": "/api/index"
-    }
-  ],
   "functions": {
     "api/*.js": {
       "maxDuration": 30
     }
-  },
-  "env": {
-    "PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD": "1"
   }
 }
