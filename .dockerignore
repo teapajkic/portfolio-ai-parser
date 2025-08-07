@@ -3,8 +3,6 @@ npm-debug.log
 .git
 .gitignore
 README.md
-Dockerfile
-.dockerignore
 example.js
 test.js
 .env
@@ -12,3 +10,4 @@ test.js
 .env.production.local
 .env.development.local
 *.md
+.railway-version
