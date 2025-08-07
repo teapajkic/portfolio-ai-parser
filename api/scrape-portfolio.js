@@ -173,36 +173,25 @@ function extractProjectSummaries($) {
 
 // Main scraping function
 async function scrapePortfolio(url) {
-  let browser;
-  
+  // For Vercel, use a simpler approach with fetch + cheerio instead of full browser
   try {
-    // Launch browser with Vercel-compatible settings
-    browser = await chromium.launch({
-      headless: true,
-      args: [
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-        '--disable-dev-shm-usage',
-        '--disable-gpu',
-        '--no-first-run',
-        '--no-zygote',
-        '--disable-extensions'
-      ]
+    console.log(`Starting to scrape: ${url}`);
+    
+    // Fetch the page content directly
+    const response = await fetch(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+      }
     });
     
-    const page = await browser.newPage();
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
     
-    // Navigate to the URL with timeout
-    await page.goto(url, { 
-      waitUntil: 'networkidle',
-      timeout: 15000 
-    });
+    const html = await response.text();
+    const $ = cheerio.load(html);
     
-    // Get page content
-    const content = await page.content();
-    const $ = cheerio.load(content);
-    
-    // Extract all information
+    // Extract all information using cheerio
     const candidateName = extractCandidateName($);
     const candidateBio = extractCandidateBio($);
     const imageUrls = extractImageUrls($, url);
@@ -222,10 +211,6 @@ async function scrapePortfolio(url) {
   } catch (error) {
     console.error('Error scraping portfolio:', error);
     throw new Error(`Failed to scrape portfolio: ${error.message}`);
-  } finally {
-    if (browser) {
-      await browser.close();
-    }
   }
 }
 
