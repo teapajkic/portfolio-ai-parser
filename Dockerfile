@@ -8,9 +8,10 @@ RUN apk add --no-cache \
     freetype-dev \
     harfbuzz \
     ca-certificates \
-    ttf-freefont
+    ttf-freefont \
+    wget
 
-# Set environment variable for Playwright
+# Tell Playwright to use installed Chromium
 ENV PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium-browser
 ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
 
@@ -21,21 +22,13 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install app dependencies
-RUN npm ci --only=production
+RUN npm install
 
 # Copy app source
 COPY . .
 
-# Create a non-root user
-RUN addgroup -g 1001 -S nodejs
-RUN adduser -S nextjs -u 1001
-
-# Change ownership of the app directory
-RUN chown -R nextjs:nodejs /app
-USER nextjs
-
 # Expose port
 EXPOSE 3000
 
-# Define the command to run the app
+# Start the application
 CMD ["npm", "start"]

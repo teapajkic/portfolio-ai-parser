@@ -17,16 +17,26 @@ async function scrapePortfolio(url) {
   let browser;
   
   try {
-    // Launch browser with Railway-compatible settings
-    browser = await chromium.launch({ 
+    // Launch browser with Railway/Docker-compatible settings
+    const launchOptions = {
       headless: true,
       args: [
         '--no-sandbox',
         '--disable-setuid-sandbox',
         '--disable-dev-shm-usage',
-        '--disable-gpu'
+        '--disable-gpu',
+        '--no-first-run',
+        '--no-zygote',
+        '--disable-extensions'
       ]
-    });
+    };
+
+    // Use system Chromium if available (Docker/Railway)
+    if (process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH) {
+      launchOptions.executablePath = process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH;
+    }
+
+    browser = await chromium.launch(launchOptions);
     const page = await browser.newPage();
     
     // Navigate to the URL
