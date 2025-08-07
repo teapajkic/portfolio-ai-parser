@@ -43,20 +43,17 @@ A simple AI-powered web scraping app that extracts structured data from portfoli
 
 ## Quick Start
 
-### Vercel Deployment (Recommended)
+### Railway Deployment (Recommended)
 
-1. **Clone and Deploy**
-   ```bash
-   git clone <your-repo-url>
-   cd portfolio-scraper-api
-   npm install
-   npm i -g vercel
-   vercel --prod
-   ```
+1. **Deploy to Railway**
+   - Go to [railway.app](https://railway.app)
+   - Connect your GitHub repository
+   - Click "Deploy" - Railway will auto-detect and build your app
+   - Playwright browsers install automatically!
 
 2. **Test the API**
    ```bash
-   curl -X POST https://your-app.vercel.app/scrape-portfolio \
+   curl -X POST https://your-app.railway.app/scrape-portfolio \
      -H "Content-Type: application/json" \
      -d '{"url": "https://alexanderdavisgrimes.github.io/portfolio.html"}'
    ```

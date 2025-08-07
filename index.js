@@ -17,8 +17,16 @@ async function scrapePortfolio(url) {
   let browser;
   
   try {
-    // Launch browser
-    browser = await chromium.launch({ headless: true });
+    // Launch browser with Railway-compatible settings
+    browser = await chromium.launch({ 
+      headless: true,
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        '--disable-gpu'
+      ]
+    });
     const page = await browser.newPage();
     
     // Navigate to the URL
