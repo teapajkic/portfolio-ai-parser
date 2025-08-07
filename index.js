@@ -1,3 +1,7 @@
+console.log('🚀 Starting Portfolio Scraper API...');
+console.log('📁 Working directory:', process.cwd());
+console.log('🔧 Node version:', process.version);
+
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
@@ -5,12 +9,14 @@ const cheerio = require('cheerio');
 
 // Try to import playwright, fallback to simple HTTP fetch if not available
 let chromium = null;
+console.log('🔍 Attempting to load Playwright...');
 try {
   const playwright = require('playwright');
   chromium = playwright.chromium;
   console.log('✅ Playwright loaded successfully');
 } catch (error) {
   console.log('⚠️ Playwright not available, using simple HTTP fetch fallback');
+  console.log('Error details:', error.message);
 }
 
 const app = express();
