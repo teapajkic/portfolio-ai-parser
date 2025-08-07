@@ -43,6 +43,24 @@ A simple AI-powered web scraping app that extracts structured data from portfoli
 
 ## Quick Start
 
+### Vercel Deployment (Recommended)
+
+1. **Clone and Deploy**
+   ```bash
+   git clone <your-repo-url>
+   cd portfolio-scraper-api
+   npm install
+   npm i -g vercel
+   vercel --prod
+   ```
+
+2. **Test the API**
+   ```bash
+   curl -X POST https://your-app.vercel.app/scrape-portfolio \
+     -H "Content-Type: application/json" \
+     -d '{"url": "https://alexanderdavisgrimes.github.io/portfolio.html"}'
+   ```
+
 ### Local Development
 
 1. **Clone and Install**
@@ -123,10 +141,10 @@ npm start
 
 The API is designed to work seamlessly with Make.com (formerly Integromat):
 
-1. **Deploy to a cloud service** (Heroku, Railway, DigitalOcean, etc.)
+1. **Deploy to Vercel** (recommended) or other cloud service
 2. **In Make.com, use the HTTP module:**
    - Method: POST
-   - URL: `https://your-deployed-app.com/scrape-portfolio`
+   - URL: `https://your-vercel-app.vercel.app/scrape-portfolio`
    - Headers: `Content-Type: application/json`
    - Body: `{"url": "{{portfolio_url}}"}`
 
@@ -164,6 +182,16 @@ heroku buildpacks:add https://github.com/jontewks/puppeteer-heroku-buildpack.git
 heroku buildpacks:add heroku/nodejs
 git push heroku main
 ```
+
+#### Vercel (Recommended)
+```bash
+npm i -g vercel
+vercel --prod
+```
+Or deploy via GitHub integration:
+1. Connect your GitHub repository to Vercel
+2. Auto-deploy on every push to main branch
+3. Serverless functions automatically handle scaling
 
 #### Railway
 ```bash
@@ -242,6 +270,24 @@ async function testCustomUrl() {
 }
 
 testCustomUrl();
+```
+
+## File Structure
+
+```
+portfolio-scraper-api/
+├── api/                      # Vercel serverless functions
+│   ├── scrape-portfolio.js   # Main scraping endpoint
+│   ├── health.js            # Health check endpoint
+│   └── index.js             # API documentation
+├── index.js                 # Local Express server (optional)
+├── test.js                  # Test functions
+├── example.js               # Usage examples
+├── package.json             # Dependencies
+├── vercel.json              # Vercel configuration
+├── Dockerfile               # Container deployment
+├── .dockerignore            # Docker optimization
+└── README.md                # Complete documentation
 ```
 
 ## Contributing
