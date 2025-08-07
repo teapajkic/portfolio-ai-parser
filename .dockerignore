@@ -11,3 +11,4 @@ test.js
 .env.local
 .env.production.local
 .env.development.local
+*.md

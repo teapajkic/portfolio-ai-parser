@@ -1,8 +1,17 @@
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
-const { chromium } = require('playwright');
 const cheerio = require('cheerio');
+
+// Try to import playwright, fallback to simple HTTP fetch if not available
+let chromium = null;
+try {
+  const playwright = require('playwright');
+  chromium = playwright.chromium;
+  console.log('✅ Playwright loaded successfully');
+} catch (error) {
+  console.log('⚠️ Playwright not available, using simple HTTP fetch fallback');
+}
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -12,39 +21,20 @@ app.use(helmet());
 app.use(cors());
 app.use(express.json());
 
-// Portfolio scraper function
+// Portfolio scraper function with fallback
 async function scrapePortfolio(url) {
-  let browser;
-  
   try {
-    // Launch browser with Railway/Docker-compatible settings
-    const launchOptions = {
-      headless: true,
-      args: [
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-        '--disable-dev-shm-usage',
-        '--disable-gpu',
-        '--no-first-run',
-        '--no-zygote',
-        '--disable-extensions'
-      ]
-    };
-
-    // Use system Chromium if available (Docker/Railway)
-    if (process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH) {
-      launchOptions.executablePath = process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH;
+    let $;
+    
+    if (chromium) {
+      // Use Playwright if available
+      console.log('🚀 Using Playwright for scraping');
+      $ = await scrapeWithPlaywright(url);
+    } else {
+      // Fallback to simple HTTP fetch
+      console.log('🌐 Using HTTP fetch fallback');
+      $ = await scrapeWithFetch(url);
     }
-
-    browser = await chromium.launch(launchOptions);
-    const page = await browser.newPage();
-    
-    // Navigate to the URL
-    await page.goto(url, { waitUntil: 'networkidle' });
-    
-    // Get page content
-    const content = await page.content();
-    const $ = cheerio.load(content);
     
     // Extract candidate name
     const candidateName = extractCandidateName($);
@@ -74,11 +64,56 @@ async function scrapePortfolio(url) {
   } catch (error) {
     console.error('Error scraping portfolio:', error);
     throw new Error(`Failed to scrape portfolio: ${error.message}`);
+  }
+}
+
+// Playwright scraping method
+async function scrapeWithPlaywright(url) {
+  let browser;
+  try {
+    const launchOptions = {
+      headless: true,
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        '--disable-gpu',
+        '--no-first-run',
+        '--no-zygote',
+        '--disable-extensions'
+      ]
+    };
+
+    if (process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH) {
+      launchOptions.executablePath = process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH;
+    }
+
+    browser = await chromium.launch(launchOptions);
+    const page = await browser.newPage();
+    await page.goto(url, { waitUntil: 'networkidle' });
+    const content = await page.content();
+    return cheerio.load(content);
   } finally {
     if (browser) {
       await browser.close();
     }
   }
+}
+
+// Simple HTTP fetch fallback method
+async function scrapeWithFetch(url) {
+  const response = await fetch(url, {
+    headers: {
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+    }
+  });
+  
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+  }
+  
+  const html = await response.text();
+  return cheerio.load(html);
 }
 
 // Helper function to extract candidate name

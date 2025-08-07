@@ -19,10 +19,10 @@ ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
 WORKDIR /app
 
 # Copy package files
-COPY package*.json ./
+COPY package.json ./
 
 # Install app dependencies
-RUN npm install
+RUN npm install --verbose
 
 # Copy app source
 COPY . .
